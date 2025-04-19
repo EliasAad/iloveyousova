@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>For You 💘</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
+      font-family: 'Segoe UI', sans-serif;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      flex-direction: column;
+    }
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1;
+    }
+    .message {
+      font-size: 2rem;
+      text-align: center;
+      max-width: 80%;
+      opacity: 0;
+      animation: fadeIn 5s ease 4s forwards;
+      z-index: 10;
+      white-space: pre-wrap;
+      visibility: hidden; /* Initially hide the message */
+    }
+    .message span {
+      display: inline-block;
+      opacity: 0;
+      transform: translateY(30px);
+      animation: popIn 0.5s ease forwards;
+      margin-right: 2px;
+    }
+    @keyframes popIn {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    @keyframes fadeIn {
+      to {
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+  <div class="message" id="message"></div>
+
+  <!-- Audio element -->
+  <audio id="audio" loop>
+    <source src="Lovesong.mp3" type="audio/mpeg">
+    <source src="Lovesong.ogg" type="audio/ogg">
+    Your browser does not support the audio element.
+  </audio>
+
+  <!-- Button to start audio playback -->
+  <button id="playButton" style="font-size: 1.5rem; padding: 10px 20px; background-color: #800080; border: none; color: white; cursor: pointer; z-index: 10;">Press Here for More Love</button>
+
+  <script>
+    // Handle the button click to start audio playback
+    document.getElementById('playButton').addEventListener('click', function() {
+      const audio = document.getElementById('audio');
+      audio.play().catch((err) => {
+        console.error("Audio play failed:", err);
+      });
+      this.style.display = 'none';  // Hide the button after playback starts
+      
+      // Reveal the love message
+      const messageDiv = document.getElementById("message");
+      messageDiv.style.visibility = "visible"; // Make the message visible
+      revealMessage("I just wanted to say... \nYou're the light in my world 💖 \nAnd I love you more than words can hold 🌙");
+    });
+
+    // Falling Hearts Animation
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
+    const hearts = [];
+
+    class Heart {
+      constructor() {
+        this.reset();
+      }
+      reset() {
+        this.x = Math.random() * width;
+        this.y = Math.random() * -height;
+        this.size = 10 + Math.random() * 20;
+        this.alpha = 0.3 + Math.random() * 0.7;
+        this.speed = 1 + Math.random() * 2;
+      }
+      draw() {
+        ctx.save();
+        ctx.globalAlpha = this.alpha;
+        ctx.fillStyle = "#800080";
+        ctx.beginPath();
+        const x = this.x, y = this.y, s = this.size / 2;
+        ctx.moveTo(x, y);
+        ctx.bezierCurveTo(x - s, y - s, x - s * 2, y + s / 2, x, y + s * 2);
+        ctx.bezierCurveTo(x + s * 2, y + s / 2, x + s, y - s, x, y);
+        ctx.fill();
+        ctx.restore();
+      }
+      update() {
+        this.y += this.speed;
+        if (this.y > height + 20) this.reset();
+      }
+    }
+
+    for (let i = 0; i < 100; i++) hearts.push(new Heart());
+
+    function animate() {
+      ctx.clearRect(0, 0, width, height);
+      hearts.forEach(h => { h.update(); h.draw(); });
+      requestAnimationFrame(animate);
+    }
+    animate();
+
+    // Love Message Reveal Function
+    function revealMessage(text) {
+      const messageDiv = document.getElementById("message");
+      let delay = 0;
+      const words = text.split(' ');
+      for (const word of words) {
+        const span = document.createElement("span");
+        if (word === "\n") {
+          span.innerHTML = "<br/>";
+        } else {
+          span.textContent = word;
+          span.style.animationDelay = `${delay}s`;
+          delay += 0.5;
+        }
+        messageDiv.appendChild(span);
+        const spaceSpan = document.createElement("span");
+        spaceSpan.textContent = " ";
+        messageDiv.appendChild(spaceSpan);
+      }
+    }
+
+    // Handle Resize
+    window.addEventListener("resize", () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    });
+  </script>
+</body>
+</html>
